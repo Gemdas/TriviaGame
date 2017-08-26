@@ -6,3 +6,12 @@
 {
 	display: none;
 }
+.life-line
+{
+	width: 25%;
+	height: 25%;
+}
+.opacity
+{
+	opacity: .05;
+}

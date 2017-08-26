@@ -17,14 +17,32 @@ $(document).ready(function() {
 	var timerId;
 	var time=30;
 	var currentQuestion;
+	var isPlaying=true;
+	var has5050=true;
+	var hasPAF=true;
+	var hasATA=true;
+	var hasExited = false;
 	//Start Screen set up
 	$("#Dialogue-Box").html("<h1>Welcome to Who Wants to be a Millionaire, press start to begin play</h1>");
 	$(document).on("click", ".Start", function() {
+		has5050=true;
+		hasPAF=true;
+	 	hasATA=true;
+		isPlaying=true;
+		setUpQuestion();
+		$(".life-line").removeClass("hidden");
+		$(".life-line").css({opacity:"1"});
+		$(this).removeClass("Start");
+		$(this).addClass("Walkaway");
+		$(this).html("Walkaway");
+	});
+	$(document).on("click", ".Next", function() {
 		setUpQuestion();
 		$(this).removeClass("Start");
 		$(this).addClass("Walkaway");
 		$(this).html("Walkaway");
 	});
+
 	//Generate Question that knows the correct answer include offer to walkaway
 	function setUpQuestion()
 	{
@@ -106,7 +124,6 @@ $(document).ready(function() {
 		else
 		{
 			prizeLevel=prizeLevel-(prizeLevel%5);
-			console.log(prizeLevel);
 			$("#Question-Box").html("<h2> I'm sorry you got it wrong, the answer was "+ currentQuestion.answer + ". You walk away with $"+prize[prizeLevel] +"</h2>");
 		}
 		reset(false);
@@ -119,11 +136,12 @@ $(document).ready(function() {
 			$("#Question-Box").html("<h2> Correct, you now move on to the $"+prize[prizeLevel-1] +" question</h2>");
 			$("#Timer-Box").html("<h3>next question</h3>");
 			$("#Start-Box").html("Next");
-			$("#Start-Box").addClass("Start");
+			$("#Start-Box").addClass("Next");
 			$("#Start-Box").removeClass("Walkaway");
 		}
 		else
 		{
+			isPlaying=false;
 			prizeLevel=1;
 			$("#Timer-Box").html("<h3>play again?</h3>");
 			$("#Start-Box").html("Play Again");
@@ -135,11 +153,59 @@ $(document).ready(function() {
 			$("#Answer-Box"+i).removeClass("Answer");
 			$("#Answer-Box"+i).removeClass("Wrong");
 			$("#Answer-Box"+i).removeClass("Eliminate");
+			$("#Answer-Box"+i).removeClass("opacity");
 			$("#Answer-Box"+i).addClass("hidden");
 		}
 	}
 	//bonus
+	$(document).on("click", ".life-line", function() {
+		if (isPlaying)
+		{
+			$(this).animate({ opacity: "0.05" });
+		}
+	});
 	//ask the audience opens a let me google link
 	//5050 removes two answers
+	$(document).on("click", "#Fifty-Fifty-Box", function() {
+		if(has5050&&isPlaying)
+		{
+			has5050=false;
+			$(".Eliminate").addClass("opacity");
+			$(".Eliminate").removeClass("Wrong");
+		}
+	});
+	$(document).on("click", "#Google-Box", function() {
+		if(hasATA&&isPlaying)
+		{
+			hasATA=false;
+			var google=currentQuestion.question;
+			google=google.slice(6,google.length-1);
+			for (var i = 0; i < google.length; i++) {
+				if(google.charAt(i)===' ')
+				{
+					google=google.replace(" ","+");
+				}
+			}
+			window.open("http://lmgtfy.com/?q="+google,'_blank');
+			clearInterval(timerId);
+			hasExited=true;
+		}
+	});
 	//phone a friend opens slack for the class
+	$(document).on("click", "#Phone-A-Friend-Box", function() {
+		if(hasPAF&&isPlaying)
+		{
+			window.open("https://july2017pt.slack.com/",'_blank');
+			clearInterval(timerId);
+			hasExited=true;
+		}
+	});
+	//checks to see if you have returned to the window
+	$(window).on("focus", function(){
+		if (hasExited)
+		{
+			hasExited=false;
+			timerId= setInterval(Timer, 1000);
+		}
+	});
 });
