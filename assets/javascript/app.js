@@ -8,10 +8,24 @@ $(document).ready(function() {
 		this.wrongEliminated1=we1;
 		this.wrongEliminated2=we2;
 	}
-	//create array of ?arrays of? question objects
+	//create array of question objects
 	var questionList=[];
 	questionList.push(new question("#0963 Who wrote the cult novel 'Generation X'?", "Douglas Coupland", "Jay McInerney", "Bret Easton Ellis","Will Self"));
-
+	questionList.push(new question("#0078 August 16th 2003 was the 40th anniversary of which 'Great' robbery?", "Train", "Balloon", "Hovercraft","Pushchair"));
+	questionList.push(new question("#0525 In which of these sports would you make use of the backboard?", "Basketball", "Darts", "Pool","Diving"));
+	questionList.push(new question("#0932 Which Scottish writer was created the first Baron Tweedsmuir?", "John Buchan", "Compton Mackenzie", "Walter Scott","Robert L Stevenson"));
+	questionList.push(new question("#1011 Who auditioned for the role of James Bond in 1969 but was turned down for being too tall?", "Peter Snow", "John Cleese", "Simon Dee","Christopher Lee"));
+	questionList.push(new question("#0136 Which of these is a village in Somerset?", "Cheddar", "Brie", "Gorgonzola","Emmental"));
+	questionList.push(new question("#0940 Which of these capital cities stands at the mouth of the River Plate?", "Montevideo", "Lima", "Brasilia","Quito"));		
+	questionList.push(new question("#0002 Which of these kills its victims by constriction?", "Anaconda", "Andypandy", "Andalucia","Annerobinson"));		
+	questionList.push(new question("#0292 Black Eyed Peas had a UK chart-topper in 2003 with 'Where is the ...'?", "Love?", "Cashpoint?", "Bus Stop?","Chip point?"));		
+	questionList.push(new question("#0935 In which city was the first GAP store founded in the 1960s?", "San Francisco", "Los Angeles", "New York","Boston"));
+	questionList.push(new question("#0333 Which is not an electrical SI unit of measurement?", "Grave", "Volt", "Ampere","Ohm"));
+	questionList.push(new question("#1002 In which sport is the Sam Maguire Cup annually contested?", "Gaelic Football", "Bowls", "Curling","Ice hockey"));
+	questionList.push(new question("#0248 Which of these might be sprinkled on a rice pudding?", "Cinnamon", "Cinnabar", "Cincinnati","Cinerama"));
+	questionList.push(new question("#0411 Which of these is a tool used for making holes for seeds or plants?", "Dibber", "Dobber", "Dabber","Dubber"));
+	questionList.push(new question("#0566 What name is given to someone who makes, transports or sells something illicit?", "Bootlegger", "Trickster", "Blacklegger","Footpadder"));
+	var index;
 	var prize=[0,100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
 	var prizeLevel=1;
 	var timerId;
@@ -25,6 +39,7 @@ $(document).ready(function() {
 	//Start Screen set up
 	$("#Dialogue-Box").html("<h1>Welcome to Who Wants to be a Millionaire, press start to begin play</h1>");
 	$(document).on("click", ".Start", function() {
+		index=Math.floor(Math.random()*questionList.length);
 		has5050=true;
 		hasPAF=true;
 	 	hasATA=true;
@@ -37,8 +52,14 @@ $(document).ready(function() {
 		$(this).html("Walkaway");
 	});
 	$(document).on("click", ".Next", function() {
+		index++;
+		if (index===questionList.length)
+		{
+			index=0;
+		}
+		isPlaying=true;
 		setUpQuestion();
-		$(this).removeClass("Start");
+		$(this).removeClass("Next");
 		$(this).addClass("Walkaway");
 		$(this).html("Walkaway");
 	});
@@ -47,7 +68,7 @@ $(document).ready(function() {
 	function setUpQuestion()
 	{
 		time=30;
-		currentQuestion=questionList[Math.floor(Math.random()*questionList.length)];
+		currentQuestion=questionList[index];
 		var random1=Math.ceil(Math.random()*4);
 		var random2;
 		while(random1===random2||random2===undefined)
@@ -100,6 +121,7 @@ $(document).ready(function() {
 	//if the player walks away give money earned and offer reset
 	$(document).on("click", ".Walkaway", function() {
 		$("#Dialogue-Box").html("<h1> WALK AWAY </h1>");
+		console.log(currentQuestion);
 		clearInterval(timerId);
 		wrong(true);
 	});
@@ -133,11 +155,12 @@ $(document).ready(function() {
 		
 		if (keepGoing)
 		{
-			$("#Question-Box").html("<h2> Correct, you now move on to the $"+prize[prizeLevel-1] +" question</h2>");
+			$("#Question-Box").html("<h2> Correct, you now move on to the $"+prize[prizeLevel] +" question</h2>");
 			$("#Timer-Box").html("<h3>next question</h3>");
 			$("#Start-Box").html("Next");
 			$("#Start-Box").addClass("Next");
 			$("#Start-Box").removeClass("Walkaway");
+			isPlaying=false;
 		}
 		else
 		{
@@ -165,15 +188,6 @@ $(document).ready(function() {
 		}
 	});
 	//ask the audience opens a let me google link
-	//5050 removes two answers
-	$(document).on("click", "#Fifty-Fifty-Box", function() {
-		if(has5050&&isPlaying)
-		{
-			has5050=false;
-			$(".Eliminate").addClass("opacity");
-			$(".Eliminate").removeClass("Wrong");
-		}
-	});
 	$(document).on("click", "#Google-Box", function() {
 		if(hasATA&&isPlaying)
 		{
@@ -186,17 +200,26 @@ $(document).ready(function() {
 					google=google.replace(" ","+");
 				}
 			}
-			window.open("http://lmgtfy.com/?q="+google,'_blank');
 			clearInterval(timerId);
+			window.open("http://lmgtfy.com/?q="+google,'_blank');
 			hasExited=true;
+		}
+	});
+	//5050 removes two answers
+	$(document).on("click", "#Fifty-Fifty-Box", function() {
+		if(has5050&&isPlaying)
+		{
+			has5050=false;
+			$(".Eliminate").addClass("opacity");
+			$(".Eliminate").removeClass("Wrong");
 		}
 	});
 	//phone a friend opens slack for the class
 	$(document).on("click", "#Phone-A-Friend-Box", function() {
 		if(hasPAF&&isPlaying)
 		{
-			window.open("https://july2017pt.slack.com/",'_blank');
 			clearInterval(timerId);
+			window.open("https://july2017pt.slack.com/",'_blank');
 			hasExited=true;
 		}
 	});
@@ -208,4 +231,4 @@ $(document).ready(function() {
 			timerId= setInterval(Timer, 1000);
 		}
 	});
-});
+});             

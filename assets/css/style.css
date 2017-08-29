@@ -1,3 +1,39 @@
+body
+{
+	background-image: url("../images/background.jpg");
+	background-size: 100%;
+	color: white;
+	text-align: center;
+}
+button
+{
+	cursor: pointer;
+	background-color: black;
+	color: white;
+	border-color: #1B88E7;
+}
+/*I tried to make hexagons but ahd difficulty with an outline for it so it was scrapped :(*/
+.hex-left
+{
+	float: left;
+	border-right: 5px solid black;
+	border-top: 20px solid transparent;
+	border-bottom: 20px solid transparent;
+}
+.hex-center
+{
+	float: left;
+	width: 95%;
+	height: 100%;
+	background-color: black;
+}
+.hex-right
+{
+	float: left;
+	border-left: 5px solid black;
+	border-top: 20px solid transparent;
+	border-bottom: 20px solid transparent;
+}
 .centered
 {
 	text-align: center;
@@ -5,6 +41,7 @@
 .hidden
 {
 	display: none;
+	
 }
 .life-line
 {
@@ -14,4 +51,5 @@
 .opacity
 {
 	opacity: .05;
+	cursor: not-allowed;
 }
