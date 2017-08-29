@@ -36,9 +36,18 @@ $(document).ready(function() {
 	var hasPAF=true;
 	var hasATA=true;
 	var hasExited = false;
+	// sound effects
+	var soundEffects = document.createElement("audio");
+	soundEffects.setAttribute("src", "assets/sounds/intro.mp3");
+	soundEffects.play();
+	var soundEffectsLoop =document.createElement("audio");
+	soundEffectsLoop.loop=true;
+	var soundStorage;
+	var isATA;
 	//Start Screen set up
 	$("#Dialogue-Box").html("<h1>Welcome to Who Wants to be a Millionaire, press start to begin play</h1>");
 	$(document).on("click", ".Start", function() {
+		soundEffects.pause();
 		index=Math.floor(Math.random()*questionList.length);
 		has5050=true;
 		hasPAF=true;
@@ -52,6 +61,7 @@ $(document).ready(function() {
 		$(this).html("Walkaway");
 	});
 	$(document).on("click", ".Next", function() {
+		soundEffects.pause();
 		index++;
 		if (index===questionList.length)
 		{
@@ -67,6 +77,23 @@ $(document).ready(function() {
 	//Generate Question that knows the correct answer include offer to walkaway
 	function setUpQuestion()
 	{
+		if (prizeLevel===15)
+		{
+			soundEffectsLoop.setAttribute("src", "assets/sounds/stufe_3_letzte_frage.mp3");
+		}
+		else if(prizeLevel>10)
+		{
+			soundEffectsLoop.setAttribute("src", "assets/sounds/stufe_3.mp3");
+		}
+		else if(prizeLevel>5)
+		{
+			soundEffectsLoop.setAttribute("src", "assets/sounds/stufe_2.mp3");
+		}
+		else
+		{
+			soundEffectsLoop.setAttribute("src", "assets/sounds/stufe_1.mp3");
+		}
+		soundEffectsLoop.play();
 		time=30;
 		currentQuestion=questionList[index];
 		var random1=Math.ceil(Math.random()*4);
@@ -102,6 +129,24 @@ $(document).ready(function() {
 	//if correct answer picked move forward and tell the player their cash
 	$(document).on("click", ".Answer", function() {
 		clearInterval(timerId);
+		soundEffectsLoop.pause();
+		if (prizeLevel===15)
+		{
+			soundEffects.setAttribute("src", "assets/sounds/richtig_stufe_3_letzte.mp3");
+		}
+		else if(prizeLevel>10)
+		{
+			soundEffects.setAttribute("src", "assets/sounds/richtig_stufe_3.mp3");
+		}
+		else if(prizeLevel>5)
+		{
+			soundEffects.setAttribute("src", "assets/sounds/richtig_stufe_2.mp3");
+		}
+		else
+		{
+			soundEffects.setAttribute("src", "assets/sounds/richtig_stufe_1.mp3");
+		}
+		soundEffects.play();
 		time=30;
 		prizeLevel++;
 		$("#Dialogue-Box").html("<h1> CORRECT </h1>");
@@ -115,12 +160,16 @@ $(document).ready(function() {
 	//if answered wrong give them the money they earn by getting it wrong and offer reset
 	$(document).on("click", ".Wrong", function() {
 		$("#Dialogue-Box").html("<h1> INCORRECT </h1>");
+		soundEffectsLoop.pause();
+		soundEffects.setAttribute("src", "assets/sounds/falsch.mp3");
+		soundEffects.play();
 		clearInterval(timerId);
 		wrong(false);	
 	});
 	//if the player walks away give money earned and offer reset
 	$(document).on("click", ".Walkaway", function() {
 		$("#Dialogue-Box").html("<h1> WALK AWAY </h1>");
+		soundEffectsLoop.pause();
 		console.log(currentQuestion);
 		clearInterval(timerId);
 		wrong(true);
@@ -133,6 +182,7 @@ $(document).ready(function() {
 		if(time<=0)
 		{
 			clearInterval(timerId);
+			soundEffectsLoop.pause();
 			$("#Dialogue-Box").html("<h1> TIMES UP </h1>");
 			wrong(true);
 		}
@@ -142,6 +192,8 @@ $(document).ready(function() {
 		if (didWalkaway)
 		{
 			$("#Question-Box").html("<h2> I'm sorry you walked away, the answer was "+ currentQuestion.answer + ". You walk away with $"+prize[prizeLevel-1] +"</h2>");
+			soundEffects.setAttribute("src", "assets/sounds/spielende_kandidat_geht.mp3");
+			soundEffects.play();
 		}
 		else
 		{
@@ -192,6 +244,10 @@ $(document).ready(function() {
 		if(hasATA&&isPlaying)
 		{
 			hasATA=false;
+			isATA=true;
+			soundEffectsLoop.pause();
+			soundEffects.setAttribute("src", "assets/sounds/publikumsjoker_start.mp3");
+			soundEffects.play()
 			var google=currentQuestion.question;
 			google=google.slice(6,google.length-1);
 			for (var i = 0; i < google.length; i++) {
@@ -201,6 +257,9 @@ $(document).ready(function() {
 				}
 			}
 			clearInterval(timerId);
+			soundStorage=soundEffectsLoop.getAttribute("src");
+			soundEffectsLoop.setAttribute("src", "assets/sounds/publikumsjoker_loop.mp3");
+			soundEffectsLoop.play();
 			window.open("http://lmgtfy.com/?q="+google,'_blank');
 			hasExited=true;
 		}
@@ -212,6 +271,8 @@ $(document).ready(function() {
 			has5050=false;
 			$(".Eliminate").addClass("opacity");
 			$(".Eliminate").removeClass("Wrong");
+			soundEffects.setAttribute("src", "assets/sounds/50_50.mp3");
+			soundEffects.play();
 		}
 	});
 	//phone a friend opens slack for the class
@@ -219,7 +280,14 @@ $(document).ready(function() {
 		if(hasPAF&&isPlaying)
 		{
 			clearInterval(timerId);
+			isATA=false;
+			soundEffectsLoop.pause();
+			soundEffects.setAttribute("src", "assets/sounds/telefonjoker_start.mp3");
+			soundEffects.play()
 			window.open("https://july2017pt.slack.com/",'_blank');
+			soundStorage=soundEffectsLoop.getAttribute("src");
+			soundEffectsLoop.setAttribute("src", "assets/sounds/telefonjoker_loop.mp3");
+			soundEffectsLoop.play();
 			hasExited=true;
 		}
 	});
@@ -227,7 +295,20 @@ $(document).ready(function() {
 	$(window).on("focus", function(){
 		if (hasExited)
 		{
+			soundEffectsLoop.pause();
+			if(isATA)
+			{
+				soundEffects.setAttribute("src", "assets/sounds/publikumsjoker_ende.mp3");
+				soundEffects.play()
+			}
+			else
+			{
+				soundEffects.setAttribute("src", "assets/sounds/telefonjoker_ende.mp3");
+				soundEffects.play()
+			}
 			hasExited=false;
+			soundEffectsLoop.setAttribute("src", soundStorage);
+			soundEffectsLoop.play();
 			timerId= setInterval(Timer, 1000);
 		}
 	});
